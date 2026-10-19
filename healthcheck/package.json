@@ -1,0 +1,14 @@
+{
+  "name": "nord-proxy-healthcheck",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "check.js",
+  "scripts": {
+    "start": "node check.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "socks-proxy-agent": "^8.0.5"
+  }
+}

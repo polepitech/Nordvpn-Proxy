@@ -1,0 +1,38 @@
+services:
+  nord-proxy:
+    image: edgd1er/nordlynx-proxy:latest-ubuntu
+    container_name: nord-proxy
+    restart: unless-stopped
+    ports:
+      # Bind localhost only — Puppeteer on the same host uses 127.0.0.1:1080
+      - "127.0.0.1:1080:1080"
+      - "127.0.0.1:8888:8888"
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/Paris
+      - COUNTRY=${COUNTRY:-fr}
+      - GROUP=P2P
+      - TECHNOLOGY=NordLynx
+      - LOCAL_NETWORK=172.16.0.0/12,10.0.0.0/8,192.168.0.0/16
+      - NORDVPN_TOKEN=${NORDVPN_TOKEN}
+
+  healthcheck:
+    build: ./healthcheck
+    container_name: nord-proxy-healthcheck
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - SOCKS_HOST=nord-proxy
+      - SOCKS_PORT=1080
+      - KUMA_PUSH_URL=${KUMA_PUSH_URL}
+      - CHECK_INTERVAL_MS=${CHECK_INTERVAL_MS:-60000}
+    depends_on:
+      - nord-proxy
