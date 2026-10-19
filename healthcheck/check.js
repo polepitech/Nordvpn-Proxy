@@ -25,11 +25,13 @@ async function getIp(viaSocks) {
   return data.ip;
 }
 
-async function pushKuma(status, msg) {
+async function pushKuma(status, msg, ping) {
   const url = new URL(KUMA_PUSH_URL);
   url.searchParams.set('status', status);
   url.searchParams.set('msg', msg);
-  url.searchParams.set('ping', String(Date.now()));
+  if (ping != null) {
+    url.searchParams.set('ping', String(ping));
+  }
 
   const res = await fetch(url.toString(), { timeout: 10_000 });
   if (!res.ok) {
@@ -59,7 +61,7 @@ async function checkOnce() {
       ? `proxy_ok ip=${proxyIp} direct=${directIp} ${latency}ms`
       : `proxy_ok ip=${proxyIp} ${latency}ms`;
 
-    await pushKuma('up', msg);
+    await pushKuma('up', msg, latency);
     console.log(`[up] ${msg}`);
   } catch (err) {
     const msg = `proxy_down: ${err.message || err}`;
